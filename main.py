@@ -10,7 +10,7 @@ Setup:
 """
 
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 
 import random
@@ -47,7 +47,7 @@ def get_epd(fn, is_shuffle):
 def epd2doc(epd_file, output_file, max_pos, header,
             board_orientation, show_fen, show_bm,
             show_id, randomize_position, board_image_pixel_size,
-            doc_image_inch_size):
+            doc_image_inch_size, show_c0):
     epds = get_epd(epd_file, randomize_position)
 
     num_pos_printed = max(1, min(1e6, max_pos))
@@ -95,7 +95,12 @@ def epd2doc(epd_file, output_file, max_pos, header,
                 run.add_break()
             run = p.add_run(f'id: {epd_info.get("id", None)}')
 
-        if show_fen or show_bm or show_id:
+        if show_c0:
+            if show_fen or show_bm or show_id:
+                run.add_break()
+            run = p.add_run(f'c0: {epd_info.get("c0", None)}')
+
+        if show_fen or show_bm or show_id or show_c0:
             run.add_break()  # vertical space gap
 
         if cnt + 1 >= num_pos_printed:
@@ -135,6 +140,8 @@ def main():
                         help='A flag to show bm in the doc.')
     parser.add_argument('--show-id', action='store_true',
                         help='A flag to show epd id in the doc.')
+    parser.add_argument('--show-c0', action='store_true',
+                        help='A flag to show epd c0 opcode value in the doc.')
     parser.add_argument('--randomize-position', action='store_true',
                         help='A flag to shuffle the positions before embedding to the doc.')
     parser.add_argument('-v', '--version', action='version', version=f'{__version__}')
@@ -144,7 +151,7 @@ def main():
     epd2doc(args.epd_file, args.output_file, args.max_pos, args.header,
         args.board_orientation, args.show_fen, args.show_bm,
         args.show_id, args.randomize_position, args.board_image_pixel_size,
-        args.doc_image_inch_size)
+        args.doc_image_inch_size, args.show_c0)
 
 
 if __name__ == '__main__':
