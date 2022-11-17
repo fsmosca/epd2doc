@@ -16,6 +16,12 @@ Embeds chess diagrams from epd file into a document.
  ```
  
  You will get the main.py, sample epd `7men_human.epd` and other files.
+ 
+ With requirements.txt file, you can also install the requirements with:
+ 
+ ```
+ pip install -r requirements.txt
+ ```
   
 ## Command line
 
@@ -65,6 +71,8 @@ optional arguments:
 ```
 
 ## Sample output
+
+`command line`
 
 ```
 python main.py --epd-file 7men_human.epd --output-file sevenmen.docx --max-pos 10 --show-fen --show-bm --randomize-position --header "Seven-men test"
