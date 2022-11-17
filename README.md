@@ -72,7 +72,8 @@ python main.py --epd-file 7men_human.epd --output-file sevenmen.docx --max-pos 1
 
 `sevenmen.docx`
 
-![image](https://user-images.githubusercontent.com/22366935/202364932-69fbcb60-2b16-42f8-9168-0ff5d1577942.png)
+![image](https://user-images.githubusercontent.com/22366935/202367172-72bac1f4-e190-4d77-82df-2d4fc5c201c5.png)
+
 
 
 
