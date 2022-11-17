@@ -10,7 +10,7 @@ Setup:
 """
 
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 import random
@@ -54,12 +54,6 @@ def epd2doc(epd_file, output_file, max_pos, header,
     pngfn = 'tmp_2Eqsm5b.png'
     board_size = board_image_pixel_size
 
-    orient = None
-    if board_orientation == 'white':
-        orient = chess.WHITE
-    elif board_orientation == 'black':
-        orient = chess.BLACK
-
     document = Document()
     document.add_heading(header, 0)
 
@@ -69,7 +63,11 @@ def epd2doc(epd_file, output_file, max_pos, header,
         fen = board.fen()
         bms = epd_info.get('bm', None)
 
-        if orient is None:
+        if board_orientation == 'white':
+            orient = chess.WHITE
+        elif board_orientation == 'black':
+            orient = chess.BLACK
+        else:
             orient = board.turn
 
         if bms is not None:
