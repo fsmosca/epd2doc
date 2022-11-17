@@ -9,6 +9,14 @@ Embeds chess diagrams from epd file into a document.
   * pip install cairosvg==2.5.2
   * pip install python-docx==0.8.11
   
+ Copy the whole repository from command line with:  
+ 
+ ```
+ git clone https://github.com/fsmosca/epd2doc.git
+ ```
+ 
+ You will get the main.py, sample epd `7men_human.epd` and other files.
+  
 ## Command line
 
 ```
@@ -55,5 +63,16 @@ optional arguments:
                         the doc.
   -v, --version         show program's version number and exit
 ```
+
+## Sample output
+
+```
+python main.py --epd-file 7men_human.epd --output-file sevenmen.docx --max-pos 10 --show-fen --show-bm --randomize-position --header "Seven-men test"
+```
+
+`sevenmen.docx`
+
+![image](https://user-images.githubusercontent.com/22366935/202364932-69fbcb60-2b16-42f8-9168-0ff5d1577942.png)
+
 
 
