@@ -10,7 +10,7 @@ Setup:
 """
 
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 
 import random
@@ -88,20 +88,17 @@ def epd2doc(epd_file, output_file, max_pos, header,
         if show_bm:
             if show_fen:
                 run.add_break()
-                run = p.add_run(f'bm: {bms_sans_str}')
-            else:
-                run = p.add_run(f'bm: {bms_sans_str}')
+            run = p.add_run(f'bm: {bms_sans_str}')
 
         if show_id:
             if show_fen or show_bm:
                 run.add_break()
-                run = p.add_run(f'id: {epd_info.get("id", None)}')
-            else:
-                run = p.add_run(f'id: {epd_info.get("id", None)}')
+            run = p.add_run(f'id: {epd_info.get("id", None)}')
 
-        run.add_break()  # vertical space gap
+        if show_fen or show_bm or show_id:
+            run.add_break()  # vertical space gap
 
-        if cnt >= num_pos_printed:
+        if cnt + 1 >= num_pos_printed:
             break
 
     try:
