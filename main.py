@@ -10,7 +10,7 @@ Setup:
 """
 
 
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 
 import random
@@ -23,18 +23,19 @@ from docx import Document
 from docx.shared import Inches
 
 
-def get_epd(fn, is_shuffle):
+def get_epd(pos_file, is_shuffle):
     """Converts epd file to epd list.
 
     Args:
-      fn: The file with epd positions.
+      fn (str): The file with epd positions.
+      is_shuffle (bool): If true, will shuffle the positions.
 
     Returns:
-      epds: A list of epd positions.
+      epds (list): A list of epd positions.
     """
     epds = []
-    with open(fn) as f:
-        for lines in f:
+    with open(pos_file, encoding='utf-8') as handle:
+        for lines in handle:
             epd_line = lines.rstrip()
             epds.append(epd_line)
 
@@ -44,37 +45,68 @@ def get_epd(fn, is_shuffle):
     return epds
 
 
-def set_comments(document, show_fen, show_bm, show_id, show_c0,
-                 fen, bms_sans_str, epd_info):
+def set_comments(document, board, epd_info,
+                 show_fen, show_bm, show_id, show_c0):
     """Adds diagram comments"""
-    p = document.add_paragraph()
-    
+    parag = document.add_paragraph()
+
     if show_fen:
-        run = p.add_run(f'{fen}')
+        run = parag.add_run(f'{board.fen()}')
 
     if show_bm:
+        bms = epd_info.get('bm', None)
+        if bms is not None:
+            bms_sans = [board.san(m) for m in bms]
+            bms_sans_str = ' '.join(bms_sans)
+        else:
+            bms_sans_str = None
+
         if show_fen:
             run.add_break()
-        run = p.add_run(f'bm: {bms_sans_str}')
+        run = parag.add_run(f'bm: {bms_sans_str}')
 
     if show_id:
         if show_fen or show_bm:
             run.add_break()
-        run = p.add_run(f'id: {epd_info.get("id", None)}')
+        run = parag.add_run(f'id: {epd_info.get("id", None)}')
 
     if show_c0:
         if show_fen or show_bm or show_id:
             run.add_break()
-        run = p.add_run(f'c0: {epd_info.get("c0", None)}')
+        run = parag.add_run(f'c0: {epd_info.get("c0", None)}')
 
     if show_fen or show_bm or show_id or show_c0:
         run.add_break()  # vertical space gap
+
+
+def get_board_orientation(board, board_orientation):
+    """Returns board orientation"""
+    if board_orientation == 'white':
+        orient = chess.WHITE
+    elif board_orientation == 'black':
+        orient = chess.BLACK
+    else:
+        orient = board.turn
+
+    return orient
 
 
 def epd2doc(epd_file, output_file, max_pos, header,
             board_orientation, show_fen, show_bm,
             show_id, randomize_position, board_image_pixel_size,
             doc_image_inch_size, show_c0):
+    """Embeds chess position diagram into the docx.
+
+    Reads EPD or FEN file and embed it in docx. Adds comment
+    on the diagram if flags are enabled.
+
+    Args:
+      epd_file (str): The file that contains chess position in EPD or FEN format.
+      output_file (str): The docx file to write the output.
+
+    Returns:
+      None
+    """
     epds = get_epd(epd_file, randomize_position)
 
     num_pos_printed = max(1, min(1e6, max_pos))
@@ -87,28 +119,21 @@ def epd2doc(epd_file, output_file, max_pos, header,
     for cnt, epd in enumerate(epds):
         board = chess.Board()
         epd_info = board.set_epd(epd)
-        fen = board.fen()
-        bms = epd_info.get('bm', None)
 
-        if board_orientation == 'white':
-            orient = chess.WHITE
-        elif board_orientation == 'black':
-            orient = chess.BLACK
-        else:
-            orient = board.turn
+        # Create svg object.
+        mysvg = chess.svg.board(
+            board,
+            size=board_size,
+            orientation=get_board_orientation(board, board_orientation))
 
-        if bms is not None:
-            bms_sans = [board.san(m) for m in bms]
-            bms_sans_str = ' '.join(bms_sans)
-        else:
-            bms_sans_str = None
-
-        mysvg = chess.svg.board(board, size=board_size, orientation=orient)
+        # Convert svg to png image file.
         cairosvg.svg2png(mysvg, write_to=pngfn)
+
+        # Insert png image into docx.
         document.add_picture(pngfn, width=Inches(doc_image_inch_size))
 
-        set_comments(document, show_fen, show_bm, show_id, show_c0,
-                     fen, bms_sans_str, epd_info)
+        set_comments(document, board, epd_info, show_fen,
+                     show_bm, show_id, show_c0)
 
         if cnt + 1 >= num_pos_printed:
             break
@@ -156,9 +181,9 @@ def main():
     args = parser.parse_args()
 
     epd2doc(args.epd_file, args.output_file, args.max_pos, args.header,
-        args.board_orientation, args.show_fen, args.show_bm,
-        args.show_id, args.randomize_position, args.board_image_pixel_size,
-        args.doc_image_inch_size, args.show_c0)
+            args.board_orientation, args.show_fen, args.show_bm,
+            args.show_id, args.randomize_position, args.board_image_pixel_size,
+            args.doc_image_inch_size, args.show_c0)
 
 
 if __name__ == '__main__':
