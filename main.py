@@ -10,7 +10,7 @@ Setup:
 """
 
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 
 import random
@@ -42,6 +42,33 @@ def get_epd(fn, is_shuffle):
         random.shuffle(epds)
 
     return epds
+
+
+def set_comments(document, show_fen, show_bm, show_id, show_c0,
+                 fen, bms_sans_str, epd_info):
+    """Adds diagram comments"""
+    p = document.add_paragraph()
+    
+    if show_fen:
+        run = p.add_run(f'{fen}')
+
+    if show_bm:
+        if show_fen:
+            run.add_break()
+        run = p.add_run(f'bm: {bms_sans_str}')
+
+    if show_id:
+        if show_fen or show_bm:
+            run.add_break()
+        run = p.add_run(f'id: {epd_info.get("id", None)}')
+
+    if show_c0:
+        if show_fen or show_bm or show_id:
+            run.add_break()
+        run = p.add_run(f'c0: {epd_info.get("c0", None)}')
+
+    if show_fen or show_bm or show_id or show_c0:
+        run.add_break()  # vertical space gap
 
 
 def epd2doc(epd_file, output_file, max_pos, header,
@@ -80,28 +107,8 @@ def epd2doc(epd_file, output_file, max_pos, header,
         cairosvg.svg2png(mysvg, write_to=pngfn)
         document.add_picture(pngfn, width=Inches(doc_image_inch_size))
 
-        p = document.add_paragraph()
-        
-        if show_fen:
-            run = p.add_run(f'{fen}')
-
-        if show_bm:
-            if show_fen:
-                run.add_break()
-            run = p.add_run(f'bm: {bms_sans_str}')
-
-        if show_id:
-            if show_fen or show_bm:
-                run.add_break()
-            run = p.add_run(f'id: {epd_info.get("id", None)}')
-
-        if show_c0:
-            if show_fen or show_bm or show_id:
-                run.add_break()
-            run = p.add_run(f'c0: {epd_info.get("c0", None)}')
-
-        if show_fen or show_bm or show_id or show_c0:
-            run.add_break()  # vertical space gap
+        set_comments(document, show_fen, show_bm, show_id, show_c0,
+                     fen, bms_sans_str, epd_info)
 
         if cnt + 1 >= num_pos_printed:
             break
