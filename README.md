@@ -8,6 +8,7 @@ Embeds chess diagrams from epd file into a document.
   * pip install chess==1.9.3
   * pip install cairosvg==2.5.2
   * pip install python-docx==0.8.11
+  * pip install tqdm==4.64.1
   
  Copy the whole repository from command line with:  
  
