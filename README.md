@@ -39,6 +39,8 @@ See [wiki](https://github.com/fsmosca/epd2doc/wiki/Help).
 
 ## Sample output
 
+### Input from epd file
+
 `command line`
 
 ```
@@ -49,6 +51,18 @@ python main.py --epd-file 7men_human.epd --output-file sevenmen.docx --max-pos 1
 
 ![image](https://user-images.githubusercontent.com/22366935/202367172-72bac1f4-e190-4d77-82df-2d4fc5c201c5.png)
 
+### Input from fen file
 
+```
+python main.py --epd-file opening.fen --output-file opening.docx --show-fen
+```
 
+`opening.docx`
 
+![image](https://user-images.githubusercontent.com/22366935/202827106-18f2d103-884d-4817-9b3d-48907ba8eef7.png)
+
+## Credits
+
+* [Python Chess](https://python-chess.readthedocs.io/en/latest/)
+* [Python Docx](https://python-docx.readthedocs.io/en/latest/index.html)
+* [Cairo SVG](https://cairosvg.org/)
