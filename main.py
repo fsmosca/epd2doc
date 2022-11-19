@@ -7,10 +7,11 @@ Setup:
     pip install chess==1.9.3
     pip install cairosvg==2.5.2
     pip install python-docx==0.8.11
+    pip install tqdm==4.64.1
 """
 
 
-__version__ = '0.5.0'
+__version__ = '0.6.0'
 
 
 import random
@@ -21,6 +22,7 @@ import chess.svg
 import cairosvg
 from docx import Document
 from docx.shared import Inches
+from tqdm import tqdm
 
 
 def get_epd(pos_file, max_pos, is_shuffle=False):
@@ -118,7 +120,10 @@ def epd2doc(epd_file, output_file, max_pos, header,
     document = Document()
     document.add_heading(header, 0)
 
-    for epd in epds:
+    pbar = tqdm(epds)
+    for epd in pbar:
+        pbar.set_description("Processing %s" % epd[0:40])
+
         board = chess.Board()
         epd_info = board.set_epd(epd)
 
