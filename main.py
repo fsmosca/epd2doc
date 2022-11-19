@@ -10,7 +10,7 @@ Setup:
 """
 
 
-__version__ = '0.4.2'
+__version__ = '0.5.0'
 
 
 import random
@@ -23,11 +23,12 @@ from docx import Document
 from docx.shared import Inches
 
 
-def get_epd(pos_file, is_shuffle):
+def get_epd(pos_file, max_pos, is_shuffle=False):
     """Converts epd file to epd list.
 
     Args:
-      fn (str): The file with epd positions.
+      pos_file (str): The file with epd positions.
+      max_pos (int): The number of positions to embed.
       is_shuffle (bool): If true, will shuffle the positions.
 
     Returns:
@@ -39,10 +40,12 @@ def get_epd(pos_file, is_shuffle):
             epd_line = lines.rstrip()
             epds.append(epd_line)
 
+    # Randomly shuffle the positions before selection.
     if is_shuffle:
-        random.shuffle(epds)
+        random.shuffle(epds)  # in-place
 
-    return epds
+    # Only return the required number of pos.
+    return epds[0: min(len(epds), max_pos)]
 
 
 def set_comments(document, board, epd_info,
@@ -107,16 +110,15 @@ def epd2doc(epd_file, output_file, max_pos, header,
     Returns:
       None
     """
-    epds = get_epd(epd_file, randomize_position)
+    epds = get_epd(epd_file, max_pos, randomize_position)
 
-    num_pos_printed = max(1, min(1e6, max_pos))
     pngfn = 'tmp_2Eqsm5b.png'
     board_size = board_image_pixel_size
 
     document = Document()
     document.add_heading(header, 0)
 
-    for cnt, epd in enumerate(epds):
+    for epd in epds:
         board = chess.Board()
         epd_info = board.set_epd(epd)
 
@@ -134,9 +136,6 @@ def epd2doc(epd_file, output_file, max_pos, header,
 
         set_comments(document, board, epd_info, show_fen,
                      show_bm, show_id, show_c0)
-
-        if cnt + 1 >= num_pos_printed:
-            break
 
     try:
         document.save(output_file)
